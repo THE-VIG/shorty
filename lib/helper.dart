@@ -5,8 +5,8 @@ abstract class Helper {
   Future<void> addCollection(String name);
   Future<void> updateCollection(int id, String name);
   Future<void> deleteCollection(int id);
-  Future<Collecion> getCollection(int id);
-  Future<List<Collecion>> getCollections();
+  Future<Collection> getCollection(int id);
+  Future<List<Collection>> getCollections();
 
   //shortcuts
   Future<void> addShortcut(

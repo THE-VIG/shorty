@@ -35,19 +35,19 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Future<models.Collecion> getCollection(int id) {
+  Future<models.Collection> getCollection(int id) {
     // TODO: implement getCollection
     throw UnimplementedError();
   }
 
   @override
-  Future<List<models.Collecion>> getCollections() async {
+  Future<List<models.Collection>> getCollections() async {
     final response = await database.collection.select().get();
-    final collections = <models.Collecion>[];
+    final collections = <models.Collection>[];
 
     for (var collection in response) {
       collections.add(
-        models.Collecion(
+        models.Collection(
           id: collection.id,
           name: collection.name,
         ),

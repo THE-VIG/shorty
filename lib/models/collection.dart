@@ -1,6 +1,6 @@
-class Collecion {
+class Collection {
   final int id;
   final String name;
 
-  Collecion({required this.id, required this.name});
+  Collection({required this.id, required this.name});
 }
