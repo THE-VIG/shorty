@@ -97,13 +97,17 @@ class CollectionsCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(5),
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 32),
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: const SizedBox(
+          child: SizedBox(
             width: double.maxFinite,
             child: Wrap(
               alignment: WrapAlignment.start,
               spacing: 8,
               runSpacing: 8,
-              children: [],
+              children: [
+                ShortcutItem(
+                  collection: collection,
+                ),
+              ],
             ),
           ),
         ),
@@ -115,11 +119,13 @@ class CollectionsCard extends StatelessWidget {
 class ShortcutItem extends StatefulWidget {
   const ShortcutItem({
     super.key,
-    this.shortcut,
+    required this.collection,
+    this.shorcut,
     this.showTitles = true,
   });
 
-  final Shortcut? shortcut;
+  final Collection collection;
+  final Shortcut? shorcut;
   final bool showTitles;
 
   @override
@@ -129,6 +135,9 @@ class ShortcutItem extends StatefulWidget {
 class _ShortcutItemState extends State<ShortcutItem> {
   bool hovering = false;
   bool clicking = false;
+
+  final nameController = TextEditingController();
+  final urlController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -144,65 +153,120 @@ class _ShortcutItemState extends State<ShortcutItem> {
           padding: const EdgeInsets.all(16),
           child: SizedBox(
             width: 60,
-            child: Listener(
-              onPointerDown: (event) {
-                setState(() {
-                  clicking = true;
-                });
+            child: GestureDetector(
+              onTap: () {
+                if (widget.shorcut != null) {
+                  return;
+                }
+
+                showDialog(
+                  context: context,
+                  builder: (context) => ContentDialog(
+                    title: const Text('Create a Shortcut'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        InfoLabel(
+                          label: 'Shortcut Name',
+                          child: TextBox(
+                            controller: nameController,
+                            placeholder: 'Name',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        InfoLabel(
+                          label: 'Shortcut Url',
+                          child: TextBox(
+                            controller: urlController,
+                            placeholder: 'Url',
+                          ),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      Button(
+                        child: const Text('Cancel'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      FilledButton(
+                        child: const Text('Create'),
+                        onPressed: () {
+                          DatabaseHelper().addShortcut(
+                            nameController.text.trim(),
+                            urlController.text.trim(),
+                            widget.collection.id,
+                            null,
+                            null,
+                          );
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                );
               },
-              onPointerUp: (event) {
-                setState(() {
-                  clicking = false;
-                });
-              },
-              child: MouseRegion(
-                onEnter: (event) {
+              child: Listener(
+                onPointerDown: (event) {
                   setState(() {
-                    hovering = true;
+                    clicking = true;
+                  });
+                },
+                onPointerUp: (event) {
+                  setState(() {
                     clicking = false;
                   });
                 },
-                onExit: (event) {
-                  setState(() {
-                    hovering = false;
-                  });
-                },
-                child: Column(
-                  children: [
-                    AspectRatio(
-                      aspectRatio: 1,
-                      child: Tooltip(
-                        message: widget.shortcut != null
-                            ? '${widget.shortcut!.name} ${widget.shortcut!.url}'
-                            : 'Add shortcut',
-                        useMousePosition: false,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: ColoredBox(
-                            color: Colors.black.withOpacity(.3),
-                            child: Center(
-                              child: widget.shortcut != null
-                                  ? const Icon(FluentIcons.user_window)
-                                  : const Icon(FluentIcons.add),
+                child: MouseRegion(
+                  onEnter: (event) {
+                    setState(() {
+                      hovering = true;
+                      clicking = false;
+                    });
+                  },
+                  onExit: (event) {
+                    setState(() {
+                      hovering = false;
+                    });
+                  },
+                  child: Column(
+                    children: [
+                      AspectRatio(
+                        aspectRatio: 1,
+                        child: Tooltip(
+                          message: widget.shorcut != null
+                              ? '${widget.shorcut!.name} ${widget.shorcut!.url}'
+                              : 'Add shortcut',
+                          useMousePosition: false,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: ColoredBox(
+                              color: Colors.black.withOpacity(0.3),
+                              child: Center(
+                                child: widget.shorcut != null
+                                    ? const Icon(FluentIcons.user_window)
+                                    : const Icon(FluentIcons.add),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    if (widget.shortcut != null && widget.showTitles) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        '',
-                        maxLines: 2,
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.visible,
-                        style: FluentTheme.of(context)
-                            .typography
-                            .bodyStrong!
-                            .copyWith(fontSize: 12),
-                      ),
+                      if (widget.shorcut != null && widget.showTitles) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.shorcut!.name,
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.visible,
+                          style: FluentTheme.of(context)
+                              .typography
+                              .bodyStrong!
+                              .copyWith(fontSize: 12),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),

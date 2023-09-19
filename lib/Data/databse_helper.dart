@@ -17,9 +17,16 @@ class DatabaseHelper extends Helper {
 
   @override
   Future<void> addShortcut(String name, String url, int collection,
-      String? color, String? imageUrl) {
-    // TODO: implement addShortcut
-    throw UnimplementedError();
+      String? color, String? imageUrl) async {
+    await database.into(database.shortcut).insert(
+          ShortcutCompanion.insert(
+            name: name,
+            collection: collection,
+            url: url,
+            color: Value(color),
+            imageUrl: Value(imageUrl),
+          ),
+        );
   }
 
   @override
@@ -64,9 +71,26 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Future<List<models.Shortcut>> getShortcuts() {
-    // TODO: implement getShortcuts
-    throw UnimplementedError();
+  Future<List<models.Shortcut>> getShortcuts(int collectionId) async {
+    final statement = database.select(database.shortcut)
+      ..where((tbl) => tbl.collection.equals(collectionId));
+    final shortcutsData = await statement.get();
+    final shortcuts = <models.Shortcut>[];
+
+    for (var shortcut in shortcutsData) {
+      shortcuts.add(
+        models.Shortcut(
+          id: shortcut.id,
+          name: shortcut.name,
+          collection: shortcut.collection,
+          url: shortcut.url,
+          color: shortcut.color,
+          imageUrl: shortcut.imageUrl,
+        ),
+      );
+    }
+
+    return shortcuts;
   }
 
   @override
