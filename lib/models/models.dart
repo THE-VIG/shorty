@@ -1,2 +1,2 @@
-export 'collection.dart';
-export 'shortcut.dart';
+export 'collection_model.dart';
+export 'shortcut_model.dart';
