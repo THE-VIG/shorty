@@ -501,8 +501,8 @@ class CollectionCompanion extends UpdateCompanion<CollectionData> {
   }
 }
 
-abstract class _$MyDatabase extends GeneratedDatabase {
-  _$MyDatabase(QueryExecutor e) : super(e);
+abstract class _$Database extends GeneratedDatabase {
+  _$Database(QueryExecutor e) : super(e);
   late final $ShortcutTable shortcut = $ShortcutTable(this);
   late final $CollectionTable collection = $CollectionTable(this);
   @override

@@ -160,12 +160,10 @@ class PageBuilder extends StatelessWidget {
       case '/web_collections':
         return const CollectionsPage(
           title: 'Web Collections',
-          collections: [],
         );
       case '/app_collections':
         return const CollectionsPage(
           title: 'App Collections',
-          collections: [],
         );
       case '/todo':
       case '/notes':

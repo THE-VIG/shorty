@@ -1,19 +1,33 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:shorty/Data/database.dart';
+import 'package:shorty/Data/databse_helper.dart';
+import 'package:shorty/models/models.dart';
 
 class CollectionsPage extends StatefulWidget {
-  const CollectionsPage(
-      {super.key, required this.title, required this.collections});
+  const CollectionsPage({super.key, required this.title});
 
   final String title;
-  final List<Collection> collections;
 
   @override
   State<CollectionsPage> createState() => _CollectionsPageState();
 }
 
 class _CollectionsPageState extends State<CollectionsPage> {
+  List<Collection> collections = [];
   final controller = ScrollController();
+
+  Future<void> getCollections() async {
+    final newCollections = await DatabaseHelper().getCollections();
+    setState(() {
+      collections = newCollections;
+    });
+  }
+
+  @override
+  void initState() {
+    getCollections();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -22,18 +36,34 @@ class _CollectionsPageState extends State<CollectionsPage> {
         SliverPadding(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           sliver: SliverToBoxAdapter(
-            child: Text(
-              widget.title,
-              style: FluentTheme.of(context).typography.title,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: FluentTheme.of(context).typography.title,
+                  ),
+                ),
+                Tooltip(
+                  message: 'Add Collection',
+                  child: IconButton(
+                    icon: const Icon(FluentIcons.add),
+                    onPressed: () async {
+                      await DatabaseHelper().addCollection('new');
+                      getCollections();
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ),
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) => CollectionsCard(
-              collection: widget.collections[index],
+              collection: collections[index],
             ),
-            childCount: widget.collections.length,
+            childCount: collections.length,
           ),
         ),
       ],
@@ -73,7 +103,7 @@ class CollectionsCard extends StatelessWidget {
               alignment: WrapAlignment.start,
               spacing: 8,
               runSpacing: 8,
-              children: []
+              children: [],
             ),
           ),
         ),
@@ -149,7 +179,7 @@ class _ShortcutItemState extends State<ShortcutItem> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: ColoredBox(
-                            color:Colors.black.withOpacity(.3),
+                            color: Colors.black.withOpacity(.3),
                             child: Center(
                               child: widget.shortcut != null
                                   ? const Icon(FluentIcons.user_window)

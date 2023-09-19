@@ -22,7 +22,7 @@ class Shortcut extends Table {
 }
 
 @DriftDatabase(tables: [Shortcut, Collection])
-class Database extends _$MyDatabase {
+class Database extends _$Database {
   Database() : super(_openConnection());
 
   @override
