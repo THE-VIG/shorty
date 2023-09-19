@@ -1,4 +1,6 @@
-class Shortcut {
+import 'package:equatable/equatable.dart';
+
+class Shortcut extends Equatable {
   final int id;
   final String name;
   final String url;
@@ -6,7 +8,7 @@ class Shortcut {
   final String? color;
   final String? imageUrl;
 
-  Shortcut({
+  const Shortcut({
     required this.id,
     required this.name,
     required this.url,
@@ -14,4 +16,14 @@ class Shortcut {
     this.color,
     this.imageUrl,
   });
+
+  @override
+  List<Object?> get props => [
+        id,
+        name,
+        url,
+        collection,
+        color,
+        imageUrl,
+      ];
 }

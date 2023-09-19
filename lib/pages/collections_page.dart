@@ -93,23 +93,35 @@ class CollectionsCard extends StatelessWidget {
             style: FluentTheme.of(context).typography.bodyLarge,
           ),
         ),
-        Card(
-          borderRadius: BorderRadius.circular(5),
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 32),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: SizedBox(
-            width: double.maxFinite,
-            child: Wrap(
-              alignment: WrapAlignment.start,
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ShortcutItem(
-                  collection: collection,
+        StreamBuilder<List<Shortcut>>(
+          stream: DatabaseHelper().watchShortcuts(collection.id),
+          builder: (context, snapshot) {
+            print(snapshot.data?.toList());
+            return Card(
+              borderRadius: BorderRadius.circular(5),
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 32),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: SizedBox(
+                width: double.maxFinite,
+                child: Wrap(
+                  alignment: WrapAlignment.start,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (snapshot.data?.isNotEmpty ?? false)
+                      for (var shortcut in snapshot.data!)
+                        ShortcutItem(
+                          collection: collection,
+                          shorcut: shortcut,
+                        ),
+                    ShortcutItem(
+                      collection: collection,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ],
     );

@@ -1,4 +1,3 @@
-import 'package:shorty/database/database.dart' as database;
 import 'package:shorty/models/models.dart';
 
 abstract class Helper {
@@ -27,6 +26,6 @@ abstract class Helper {
   );
   Future<void> deleteShortcut(int id);
   Future<Shortcut> getShortcut(int id);
-  Stream<List<database.ShortcutData>> watchShortcuts(int collectionId);
+  Stream<List<Shortcut>> watchShortcuts(int collectionId);
   Future<List<Shortcut>> getShortcuts(int collectionId);
 }

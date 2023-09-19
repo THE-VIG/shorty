@@ -94,12 +94,24 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Stream<List<ShortcutData>> watchShortcuts(int collectionId) {
+  Stream<List<models.Shortcut>> watchShortcuts(int collectionId) {
     final statement = database.select(database.shortcut)
       ..where((tbl) => tbl.collection.equals(collectionId));
 
-    final shortcutsData = statement.watch();
-    return shortcutsData;
+    final shotrcutsStream = statement
+        .map<models.Shortcut>(
+          (shortcutData) => models.Shortcut(
+            id: shortcutData.id,
+            name: shortcutData.name,
+            collection: shortcutData.collection,
+            url: shortcutData.url,
+            color: shortcutData.color,
+            imageUrl: shortcutData.imageUrl,
+          ),
+        )
+        .watch();
+
+    return shotrcutsStream;
   }
 
   @override
