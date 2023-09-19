@@ -103,24 +103,24 @@ class _MainScreenState extends State<MainScreen> {
                 title: const Text('Web Collections'),
                 body: const SizedBox(),
               ),
-              PaneItem(
-                key: const Key('/app_collections'),
-                icon: const Icon(FluentIcons.app_icon_default),
-                title: const Text('App Collections'),
-                body: const SizedBox(),
-              ),
-              PaneItem(
-                key: const Key('/todo'),
-                icon: const Icon(FluentIcons.checkbox_composite),
-                title: const Text('To Do'),
-                body: const SizedBox(),
-              ),
-              PaneItem(
-                key: const Key('/notes'),
-                icon: const Icon(FluentIcons.quick_note),
-                title: const Text('Notes'),
-                body: const SizedBox(),
-              ),
+              // PaneItem(
+              //   key: const Key('/app_collections'),
+              //   icon: const Icon(FluentIcons.app_icon_default),
+              //   title: const Text('App Collections'),
+              //   body: const SizedBox(),
+              // ),
+              // PaneItem(
+              //   key: const Key('/todo'),
+              //   icon: const Icon(FluentIcons.checkbox_composite),
+              //   title: const Text('To Do'),
+              //   body: const SizedBox(),
+              // ),
+              // PaneItem(
+              //   key: const Key('/notes'),
+              //   icon: const Icon(FluentIcons.quick_note),
+              //   title: const Text('Notes'),
+              //   body: const SizedBox(),
+              // ),
             ],
             footerItems: [
               PaneItemSeparator(),
