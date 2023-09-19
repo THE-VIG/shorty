@@ -26,5 +26,5 @@ abstract class Helper {
   );
   Future<void> deleteShortcut(int id);
   Future<Shortcut> getShortcut(int id);
-  Future<List<Shortcut>> getShortcuts();
+  Future<List<Shortcut>> getShortcuts(int collectionId);
 }

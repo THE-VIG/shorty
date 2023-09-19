@@ -1,4 +1,5 @@
 class Shortcut {
+  final int id;
   final String name;
   final String url;
   final int collection;
@@ -6,6 +7,7 @@ class Shortcut {
   final String? imageUrl;
 
   Shortcut({
+    required this.id,
     required this.name,
     required this.url,
     required this.collection,
