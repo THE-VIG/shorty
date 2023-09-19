@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:shorty/Data/database.dart';
+import 'package:shorty/database/database.dart';
 import 'package:shorty/helper.dart';
 import 'package:shorty/models/models.dart' as models;
 
@@ -91,6 +91,15 @@ class DatabaseHelper extends Helper {
     }
 
     return shortcuts;
+  }
+
+  @override
+  Stream<List<ShortcutData>> watchShortcuts(int collectionId) {
+    final statement = database.select(database.shortcut)
+      ..where((tbl) => tbl.collection.equals(collectionId));
+
+    final shortcutsData = statement.watch();
+    return shortcutsData;
   }
 
   @override

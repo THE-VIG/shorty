@@ -1,5 +1,5 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:shorty/Data/databse_helper.dart';
+import 'package:shorty/database/databse_helper.dart';
 import 'package:shorty/models/models.dart';
 
 class CollectionsPage extends StatefulWidget {
