@@ -36,9 +36,10 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Future<void> deleteShortcut(int id) {
-    // TODO: implement deleteShortcut
-    throw UnimplementedError();
+  Future<void> deleteShortcut(int id) async {
+    await (database.delete(database.shortcut)
+          ..where((tbl) => tbl.id.equals(id)))
+        .go();
   }
 
   @override
