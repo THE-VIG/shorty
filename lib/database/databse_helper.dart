@@ -3,12 +3,12 @@ import 'package:shorty/database/database.dart';
 import 'package:shorty/helper.dart';
 import 'package:shorty/models/models.dart' as models;
 
-final database = Database();
+final _database = Database();
 
 class DatabaseHelper extends Helper {
   @override
   Future<void> addCollection(String name) async {
-    await database.into(database.collection).insert(
+    await _database.into(_database.collection).insert(
           CollectionCompanion.insert(
             name: name,
           ),
@@ -18,7 +18,7 @@ class DatabaseHelper extends Helper {
   @override
   Future<void> addShortcut(String name, String url, int collection,
       String? color, String? imageUrl) async {
-    await database.into(database.shortcut).insert(
+    await _database.into(_database.shortcut).insert(
           ShortcutCompanion.insert(
             name: name,
             collection: collection,
@@ -37,7 +37,7 @@ class DatabaseHelper extends Helper {
 
   @override
   Future<void> deleteShortcut(int id) async {
-    await (database.delete(database.shortcut)
+    await (_database.delete(_database.shortcut)
           ..where((tbl) => tbl.id.equals(id)))
         .go();
   }
@@ -50,7 +50,7 @@ class DatabaseHelper extends Helper {
 
   @override
   Future<List<models.Collection>> getCollections() async {
-    final response = await database.collection.select().get();
+    final response = await _database.collection.select().get();
     final collections = <models.Collection>[];
 
     for (var collection in response) {
@@ -73,7 +73,7 @@ class DatabaseHelper extends Helper {
 
   @override
   Future<List<models.Shortcut>> getShortcuts(int collectionId) async {
-    final statement = database.select(database.shortcut)
+    final statement = _database.select(_database.shortcut)
       ..where((tbl) => tbl.collection.equals(collectionId));
     final shortcutsData = await statement.get();
     final shortcuts = <models.Shortcut>[];
@@ -96,7 +96,7 @@ class DatabaseHelper extends Helper {
 
   @override
   Stream<List<models.Shortcut>> watchShortcuts(int collectionId) {
-    final statement = database.select(database.shortcut)
+    final statement = _database.select(_database.shortcut)
       ..where((tbl) => tbl.collection.equals(collectionId));
 
     final shotrcutsStream = statement
