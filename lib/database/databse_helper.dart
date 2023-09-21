@@ -30,9 +30,10 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Future<void> deleteCollection(int id) {
-    // TODO: implement deleteCollection
-    throw UnimplementedError();
+  Future<void> deleteCollection(int id) async {
+    await (_database.delete(_database.collection)
+          ..where((tbl) => tbl.id.equals(id)))
+        .go();
   }
 
   @override
@@ -116,6 +117,22 @@ class DatabaseHelper extends Helper {
   }
 
   @override
+  Stream<List<models.Collection>> watchCollections() {
+    final statement = _database.select(_database.collection);
+
+    final stream = statement
+        .map<models.Collection>(
+          (data) => models.Collection(
+            id: data.id,
+            name: data.name,
+          ),
+        )
+        .watch();
+
+    return stream;
+  }
+
+  @override
   Future<void> updateCollection(int id, String name) {
     // TODO: implement updateCollection
     throw UnimplementedError();
@@ -127,4 +144,5 @@ class DatabaseHelper extends Helper {
     // TODO: implement updateShortcut
     throw UnimplementedError();
   }
+  
 }

@@ -26,6 +26,7 @@ abstract class Helper {
   );
   Future<void> deleteShortcut(int id);
   Future<Shortcut> getShortcut(int id);
+  Stream<List<Collection>> watchCollections();
   Stream<List<Shortcut>> watchShortcuts(int collectionId);
   Future<List<Shortcut>> getShortcuts(int collectionId);
 }
