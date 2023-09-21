@@ -2,71 +2,95 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:shorty/database/databse_helper.dart';
 import 'package:shorty/models/models.dart';
 
-class CollectionsPage extends StatefulWidget {
+class CollectionsPage extends StatelessWidget {
   const CollectionsPage({super.key, required this.title});
 
   final String title;
 
   @override
-  State<CollectionsPage> createState() => _CollectionsPageState();
-}
-
-class _CollectionsPageState extends State<CollectionsPage> {
-  List<Collection> collections = [];
-  final controller = ScrollController();
-
-  Future<void> getCollections() async {
-    final newCollections = await DatabaseHelper().getCollections();
-    setState(() {
-      collections = newCollections;
-    });
-  }
-
-  @override
-  void initState() {
-    getCollections();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      controller: controller,
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          sliver: SliverToBoxAdapter(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.title,
-                    style: FluentTheme.of(context).typography.title,
-                  ),
+    final controller = ScrollController();
+    final nameController = TextEditingController();
+
+    return StreamBuilder<List<Collection>>(
+      stream: DatabaseHelper().watchCollections(),
+      builder: (context, snapshot) {
+        final collections = snapshot.data;
+
+        return CustomScrollView(
+          controller: controller,
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: FluentTheme.of(context).typography.title,
+                      ),
+                    ),
+                    Tooltip(
+                      message: 'Create a Collection',
+                      child: IconButton(
+                        icon: const Icon(FluentIcons.add),
+                        onPressed: () {
+                          createCollection(context, nameController);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                Tooltip(
-                  message: 'Add Collection',
-                  child: IconButton(
-                    icon: const Icon(FluentIcons.add),
-                    onPressed: () async {
-                      await DatabaseHelper().addCollection('new');
-                      getCollections();
-                    },
-                  ),
-                ),
-              ],
+              ),
             ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => CollectionsCard(
+                  collection: collections![index],
+                ),
+                childCount: collections?.length ?? 0,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> createCollection(
+    BuildContext context,
+    TextEditingController nameController,
+  ) async {
+    await showDialog(
+      context: context,
+      builder: (context) => ContentDialog(
+        title: const Text('Create a Shortcut'),
+        content: InfoLabel(
+          label: 'Collection Name',
+          child: TextBox(
+            controller: nameController,
+            placeholder: 'Name',
           ),
         ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) => CollectionsCard(
-              collection: collections[index],
-            ),
-            childCount: collections.length,
+        actions: [
+          Button(
+            child: const Text('Cancel'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
           ),
-        ),
-      ],
+          FilledButton(
+            child: const Text('Create'),
+            onPressed: () {
+              DatabaseHelper().addCollection(
+                nameController.text.trim(),
+              );
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -83,20 +107,37 @@ class CollectionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final menuController = FlyoutController();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsetsDirectional.only(start: 32, top: 16),
-          child: Text(
-            'Collection',
-            style: FluentTheme.of(context).typography.bodyLarge,
+          padding: const EdgeInsetsDirectional.fromSTEB(32, 16, 32, 0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  collection.name,
+                  style: FluentTheme.of(context).typography.bodyLarge,
+                ),
+              ),
+              const SizedBox(width: 16),
+              FlyoutTarget(
+                controller: menuController,
+                child: IconButton(
+                  icon: const Icon(FluentIcons.more_vertical),
+                  onPressed: () {
+                    deleteCollection(menuController);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
         StreamBuilder<List<Shortcut>>(
           stream: DatabaseHelper().watchShortcuts(collection.id),
           builder: (context, snapshot) {
-            print(snapshot.data?.toList());
             return Card(
               borderRadius: BorderRadius.circular(5),
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 32),
@@ -124,6 +165,67 @@ class CollectionsCard extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+
+  Future<void> deleteCollection(FlyoutController menuController) async {
+    await menuController.showFlyout(
+      dismissOnPointerMoveAway: true,
+      placementMode: FlyoutPlacementMode.auto,
+      autoModeConfiguration: FlyoutAutoConfiguration(
+        preferredMode: FlyoutPlacementMode.bottomRight,
+      ),
+      builder: (context) => MenuFlyout(
+        items: [
+          MenuFlyoutItem(
+            leading: const Icon(FluentIcons.edit),
+            text: const Text('Rename'),
+            onPressed: () {},
+          ),
+          const MenuFlyoutSeparator(),
+          MenuFlyoutItem(
+            leading: const Icon(FluentIcons.delete),
+            text: const Text('Delete'),
+            onPressed: () async {
+              await menuController
+                  .showFlyout(
+                    builder: (context) => FlyoutContent(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${collection.name} will be removed. Do you want to continue?',
+                          ),
+                          const SizedBox(height: 8.0),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Button(
+                                onPressed: () {
+                                  DatabaseHelper()
+                                      .deleteCollection(collection.id);
+
+                                  Flyout.of(context).close();
+                                },
+                                child: const Text('Remove'),
+                              ),
+                              const SizedBox(width: 8.0),
+                              FilledButton(
+                                onPressed: Flyout.of(context).close,
+                                child: const Text('Cancel'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                  .then((value) => Flyout.of(context).close());
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -252,8 +354,8 @@ class _ShortcutItemState extends State<ShortcutItem> {
     );
   }
 
-  Future<dynamic> deleteShortcut() {
-    return deleteFlyoutController.showFlyout(
+  Future<void> deleteShortcut() async {
+    await deleteFlyoutController.showFlyout(
       builder: (context) => FlyoutContent(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,8 +394,8 @@ class _ShortcutItemState extends State<ShortcutItem> {
     );
   }
 
-  Future<Object?> createShortcut() {
-    return showDialog(
+  Future<void> createShortcut() async {
+    await showDialog(
       context: context,
       builder: (context) => ContentDialog(
         title: const Text('Create a Shortcut'),
