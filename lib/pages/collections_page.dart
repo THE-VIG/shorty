@@ -150,140 +150,194 @@ class _ShortcutItemState extends State<ShortcutItem> {
 
   final nameController = TextEditingController();
   final urlController = TextEditingController();
+  final deleteFlyoutController = FlyoutController();
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(5),
-      child: ColoredBox(
-        color: clicking
-            ? Colors.black.withOpacity(0.3)
-            : hovering
-                ? Colors.black.withOpacity(0.1)
-                : Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SizedBox(
-            width: 60,
-            child: GestureDetector(
-              onTap: () {
-                if (widget.shorcut != null) {
-                  return;
-                }
+    return Hero(
+      tag: 'shourcut_${widget.shorcut?.id}_${widget.collection.id}',
+      child: FlyoutTarget(
+        controller: deleteFlyoutController,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: ColoredBox(
+            color: clicking
+                ? Colors.black.withOpacity(0.3)
+                : hovering
+                    ? Colors.black.withOpacity(0.1)
+                    : Colors.transparent,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: 60,
+                child: GestureDetector(
+                  onSecondaryTap: () {
+                    if (widget.shorcut == null) return;
 
-                showDialog(
-                  context: context,
-                  builder: (context) => ContentDialog(
-                    title: const Text('Create a Shortcut'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        InfoLabel(
-                          label: 'Shortcut Name',
-                          child: TextBox(
-                            controller: nameController,
-                            placeholder: 'Name',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        InfoLabel(
-                          label: 'Shortcut Url',
-                          child: TextBox(
-                            controller: urlController,
-                            placeholder: 'Url',
-                          ),
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      Button(
-                        child: const Text('Cancel'),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      FilledButton(
-                        child: const Text('Create'),
-                        onPressed: () {
-                          DatabaseHelper().addShortcut(
-                            nameController.text.trim(),
-                            urlController.text.trim(),
-                            widget.collection.id,
-                            null,
-                            null,
-                          );
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
-              child: Listener(
-                onPointerDown: (event) {
-                  setState(() {
-                    clicking = true;
-                  });
-                },
-                onPointerUp: (event) {
-                  setState(() {
-                    clicking = false;
-                  });
-                },
-                child: MouseRegion(
-                  onEnter: (event) {
-                    setState(() {
-                      hovering = true;
-                      clicking = false;
-                    });
+                    deleteShortcut();
                   },
-                  onExit: (event) {
-                    setState(() {
-                      hovering = false;
-                    });
+                  onTap: () {
+                    if (widget.shorcut != null) return;
+
+                    createShortcut();
                   },
-                  child: Column(
-                    children: [
-                      AspectRatio(
-                        aspectRatio: 1,
-                        child: Tooltip(
-                          message: widget.shorcut != null
-                              ? '${widget.shorcut!.name} ${widget.shorcut!.url}'
-                              : 'Add shortcut',
-                          useMousePosition: false,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: ColoredBox(
-                              color: Colors.black.withOpacity(0.3),
-                              child: Center(
-                                child: widget.shorcut != null
-                                    ? const Icon(FluentIcons.user_window)
-                                    : const Icon(FluentIcons.add),
+                  child: Listener(
+                    onPointerDown: (event) {
+                      setState(() {
+                        clicking = true;
+                      });
+                    },
+                    onPointerUp: (event) {
+                      setState(() {
+                        clicking = false;
+                      });
+                    },
+                    child: MouseRegion(
+                      onEnter: (event) {
+                        setState(() {
+                          hovering = true;
+                          clicking = false;
+                        });
+                      },
+                      onExit: (event) {
+                        setState(() {
+                          hovering = false;
+                        });
+                      },
+                      child: Column(
+                        children: [
+                          AspectRatio(
+                            aspectRatio: 1,
+                            child: Tooltip(
+                              message: widget.shorcut != null
+                                  ? '${widget.shorcut!.name} ${widget.shorcut!.url}'
+                                  : 'Add shortcut',
+                              useMousePosition: false,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: ColoredBox(
+                                  color: Colors.black.withOpacity(0.3),
+                                  child: Center(
+                                    child: widget.shorcut != null
+                                        ? const Icon(FluentIcons.user_window)
+                                        : const Icon(FluentIcons.add),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                          if (widget.shorcut != null && widget.showTitles) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              widget.shorcut!.name,
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.visible,
+                              style: FluentTheme.of(context)
+                                  .typography
+                                  .bodyStrong!
+                                  .copyWith(fontSize: 12),
+                            ),
+                          ],
+                        ],
                       ),
-                      if (widget.shorcut != null && widget.showTitles) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          widget.shorcut!.name,
-                          maxLines: 2,
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.visible,
-                          style: FluentTheme.of(context)
-                              .typography
-                              .bodyStrong!
-                              .copyWith(fontSize: 12),
-                        ),
-                      ],
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Future<dynamic> deleteShortcut() {
+    return deleteFlyoutController.showFlyout(
+      builder: (context) => FlyoutContent(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '${widget.shorcut!.name} will be removed. Do you want to continue?',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              widget.shorcut!.url,
+            ),
+            const SizedBox(height: 8.0),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Button(
+                  onPressed: () {
+                    DatabaseHelper().deleteShortcut(widget.shorcut!.id);
+                    Flyout.of(context).close();
+                  },
+                  child: const Text('Remove'),
+                ),
+                const SizedBox(width: 8.0),
+                FilledButton(
+                  onPressed: Flyout.of(context).close,
+                  child: const Text('Cancel'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<Object?> createShortcut() {
+    return showDialog(
+      context: context,
+      builder: (context) => ContentDialog(
+        title: const Text('Create a Shortcut'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            InfoLabel(
+              label: 'Shortcut Name',
+              child: TextBox(
+                controller: nameController,
+                placeholder: 'Name',
+              ),
+            ),
+            const SizedBox(height: 8),
+            InfoLabel(
+              label: 'Shortcut Url',
+              child: TextBox(
+                controller: urlController,
+                placeholder: 'Url',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Button(
+            child: const Text('Cancel'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          FilledButton(
+            child: const Text('Create'),
+            onPressed: () {
+              DatabaseHelper().addShortcut(
+                nameController.text.trim(),
+                urlController.text.trim(),
+                widget.collection.id,
+                null,
+                null,
+              );
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
     );
   }
