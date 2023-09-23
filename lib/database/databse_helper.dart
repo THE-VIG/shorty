@@ -6,12 +6,25 @@ import 'package:shorty/models/models.dart' as models;
 final _database = Database();
 
 class DatabaseHelper extends Helper {
+  models.Collection _collectionDataToModel(CollectionData data) =>
+      models.Collection(
+        id: data.id,
+        name: data.name,
+      );
+
+  models.Shortcut _shortcutDataToModel(ShortcutData data) => models.Shortcut(
+        id: data.id,
+        name: data.name,
+        collection: data.collection,
+        url: data.url,
+        color: data.color,
+        imageUrl: data.imageUrl,
+      );
+
   @override
   Future<void> addCollection(String name) async {
     await _database.into(_database.collection).insert(
-          CollectionCompanion.insert(
-            name: name,
-          ),
+          CollectionCompanion.insert(name: name),
         );
   }
 
@@ -44,52 +57,44 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Future<models.Collection> getCollection(int id) {
-    // TODO: implement getCollection
-    throw UnimplementedError();
+  Future<models.Collection> getCollection(int id) async {
+    final data = await (_database.collection.select()
+          ..where((tbl) => tbl.id.equals(id)))
+        .getSingle();
+
+    return _collectionDataToModel(data);
   }
 
   @override
   Future<List<models.Collection>> getCollections() async {
-    final response = await _database.collection.select().get();
+    final data = await _database.collection.select().get();
     final collections = <models.Collection>[];
 
-    for (var collection in response) {
-      collections.add(
-        models.Collection(
-          id: collection.id,
-          name: collection.name,
-        ),
-      );
+    for (var d in data) {
+      collections.add(_collectionDataToModel(d));
     }
 
     return collections;
   }
 
   @override
-  Future<models.Shortcut> getShortcut(int id) {
-    // TODO: implement getShortcut
-    throw UnimplementedError();
+  Future<models.Shortcut> getShortcut(int id) async {
+    final data = await (_database.select(_database.shortcut)
+          ..where((tbl) => tbl.id.equals(id)))
+        .getSingle();
+
+    return _shortcutDataToModel(data);
   }
 
   @override
   Future<List<models.Shortcut>> getShortcuts(int collectionId) async {
     final statement = _database.select(_database.shortcut)
       ..where((tbl) => tbl.collection.equals(collectionId));
-    final shortcutsData = await statement.get();
-    final shortcuts = <models.Shortcut>[];
+    final data = await statement.get();
 
-    for (var shortcut in shortcutsData) {
-      shortcuts.add(
-        models.Shortcut(
-          id: shortcut.id,
-          name: shortcut.name,
-          collection: shortcut.collection,
-          url: shortcut.url,
-          color: shortcut.color,
-          imageUrl: shortcut.imageUrl,
-        ),
-      );
+    final shortcuts = <models.Shortcut>[];
+    for (var shortcut in data) {
+      shortcuts.add(_shortcutDataToModel(shortcut));
     }
 
     return shortcuts;
@@ -101,16 +106,7 @@ class DatabaseHelper extends Helper {
       ..where((tbl) => tbl.collection.equals(collectionId));
 
     final shotrcutsStream = statement
-        .map<models.Shortcut>(
-          (shortcutData) => models.Shortcut(
-            id: shortcutData.id,
-            name: shortcutData.name,
-            collection: shortcutData.collection,
-            url: shortcutData.url,
-            color: shortcutData.color,
-            imageUrl: shortcutData.imageUrl,
-          ),
-        )
+        .map<models.Shortcut>((data) => _shortcutDataToModel(data))
         .watch();
 
     return shotrcutsStream;
@@ -121,28 +117,34 @@ class DatabaseHelper extends Helper {
     final statement = _database.select(_database.collection);
 
     final stream = statement
-        .map<models.Collection>(
-          (data) => models.Collection(
-            id: data.id,
-            name: data.name,
-          ),
-        )
+        .map<models.Collection>((data) => _collectionDataToModel(data))
         .watch();
 
     return stream;
   }
 
   @override
-  Future<void> updateCollection(int id, String name) {
-    // TODO: implement updateCollection
-    throw UnimplementedError();
+  Future<void> updateCollection(int id, String name) async {
+    await _database.update(_database.collection).replace(
+          CollectionCompanion.insert(
+            id: Value(id),
+            name: name,
+          ),
+        );
   }
 
   @override
   Future<void> updateShortcut(int id, String name, String url, int collection,
-      String? color, String? imageUrl) {
-    // TODO: implement updateShortcut
-    throw UnimplementedError();
+      String? color, String? imageUrl) async {
+    await _database.update(_database.shortcut).replace(
+          ShortcutCompanion.insert(
+            id: Value(id),
+            name: name,
+            url: url,
+            collection: collection,
+            color: Value(color),
+            imageUrl: Value(imageUrl),
+          ),
+        );
   }
-  
 }
