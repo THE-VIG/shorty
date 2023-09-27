@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:shorty/models/collection_model.dart';
 import 'package:shorty/pages/coming_soon_page.dart';
 import 'package:shorty/pages/home_page.dart';
 import 'package:shorty/pages/not_found_page.dart';
@@ -104,12 +105,12 @@ class _MainScreenState extends State<MainScreen> {
                 title: const Text('Web Collections'),
                 body: const SizedBox(),
               ),
-              // PaneItem(
-              //   key: const Key('/app_collections'),
-              //   icon: const Icon(FluentIcons.app_icon_default),
-              //   title: const Text('App Collections'),
-              //   body: const SizedBox(),
-              // ),
+              PaneItem(
+                key: const Key('/app_collections'),
+                icon: const Icon(FluentIcons.app_icon_default),
+                title: const Text('App Collections'),
+                body: const SizedBox(),
+              ),
               // PaneItem(
               //   key: const Key('/todo'),
               //   icon: const Icon(FluentIcons.checkbox_composite),
@@ -161,10 +162,12 @@ class PageBuilder extends StatelessWidget {
       case '/web_collections':
         return const CollectionsPage(
           title: 'Web Collections',
+          type: CollectionType.web,
         );
       case '/app_collections':
         return const CollectionsPage(
           title: 'App Collections',
+          type: CollectionType.app,
         );
       case '/todo':
       case '/notes':
