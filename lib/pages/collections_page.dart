@@ -3,9 +3,10 @@ import 'package:shorty/database/databse_helper.dart';
 import 'package:shorty/models/models.dart';
 
 class CollectionsPage extends StatelessWidget {
-  const CollectionsPage({super.key, required this.title});
+  const CollectionsPage({super.key, required this.title, required this.type});
 
   final String title;
+  final CollectionType type;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +14,7 @@ class CollectionsPage extends StatelessWidget {
     final nameController = TextEditingController();
 
     return StreamBuilder<List<Collection>>(
-      stream: DatabaseHelper().watchCollections(CollectionType.web),
+      stream: DatabaseHelper().watchCollections(type),
       builder: (context, snapshot) {
         final collections = snapshot.data;
 
@@ -85,7 +86,7 @@ class CollectionsPage extends StatelessWidget {
             onPressed: () {
               DatabaseHelper().addCollection(
                 nameController.text.trim(),
-                CollectionType.web,
+                type,
               );
               Navigator.pop(context);
             },
@@ -181,48 +182,53 @@ class CollectionsCard extends StatelessWidget {
           MenuFlyoutItem(
             leading: const Icon(FluentIcons.edit),
             text: const Text('Rename'),
-            onPressed: () {},
+            onPressed: () {
+              Flyout.of(context).close();
+
+            },
           ),
           const MenuFlyoutSeparator(),
           MenuFlyoutItem(
             leading: const Icon(FluentIcons.delete),
             text: const Text('Delete'),
             onPressed: () async {
-              await menuController
-                  .showFlyout(
-                    builder: (context) => FlyoutContent(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              Flyout.of(context).close();
+              await menuController.showFlyout(
+                placementMode: FlyoutPlacementMode.auto,
+                autoModeConfiguration: FlyoutAutoConfiguration(
+                  preferredMode: FlyoutPlacementMode.bottomRight,
+                ),
+                builder: (context) => FlyoutContent(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${collection.name} will be removed. Do you want to continue?',
+                      ),
+                      const SizedBox(height: 8.0),
+                      Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            '${collection.name} will be removed. Do you want to continue?',
-                          ),
-                          const SizedBox(height: 8.0),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Button(
-                                onPressed: () {
-                                  DatabaseHelper()
-                                      .deleteCollection(collection.id);
+                          Button(
+                            onPressed: () {
+                              DatabaseHelper().deleteCollection(collection.id);
 
-                                  Flyout.of(context).close();
-                                },
-                                child: const Text('Remove'),
-                              ),
-                              const SizedBox(width: 8.0),
-                              FilledButton(
-                                onPressed: Flyout.of(context).close,
-                                child: const Text('Cancel'),
-                              ),
-                            ],
+                              Flyout.of(context).close();
+                            },
+                            child: const Text('Remove'),
+                          ),
+                          const SizedBox(width: 8.0),
+                          FilledButton(
+                            onPressed: Flyout.of(context).close,
+                            child: const Text('Cancel'),
                           ),
                         ],
                       ),
-                    ),
-                  )
-                  .then((value) => Flyout.of(context).close());
+                    ],
+                  ),
+                ),
+              );
             },
           ),
         ],
