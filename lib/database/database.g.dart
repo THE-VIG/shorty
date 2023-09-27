@@ -350,8 +350,15 @@ class $CollectionTable extends Collection
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
-  List<GeneratedColumn> get $columns => [id, name];
+  late final GeneratedColumn<int> type = GeneratedColumn<int>(
+      'type', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns => [id, name, type];
   @override
   String get aliasedName => _alias ?? 'collection';
   @override
@@ -370,6 +377,10 @@ class $CollectionTable extends Collection
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    }
     return context;
   }
 
@@ -383,6 +394,8 @@ class $CollectionTable extends Collection
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}type'])!,
     );
   }
 
@@ -395,12 +408,15 @@ class $CollectionTable extends Collection
 class CollectionData extends DataClass implements Insertable<CollectionData> {
   final int id;
   final String name;
-  const CollectionData({required this.id, required this.name});
+  final int type;
+  const CollectionData(
+      {required this.id, required this.name, required this.type});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
+    map['type'] = Variable<int>(type);
     return map;
   }
 
@@ -408,6 +424,7 @@ class CollectionData extends DataClass implements Insertable<CollectionData> {
     return CollectionCompanion(
       id: Value(id),
       name: Value(name),
+      type: Value(type),
     );
   }
 
@@ -417,6 +434,7 @@ class CollectionData extends DataClass implements Insertable<CollectionData> {
     return CollectionData(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      type: serializer.fromJson<int>(json['type']),
     );
   }
   @override
@@ -425,57 +443,68 @@ class CollectionData extends DataClass implements Insertable<CollectionData> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
+      'type': serializer.toJson<int>(type),
     };
   }
 
-  CollectionData copyWith({int? id, String? name}) => CollectionData(
+  CollectionData copyWith({int? id, String? name, int? type}) => CollectionData(
         id: id ?? this.id,
         name: name ?? this.name,
+        type: type ?? this.type,
       );
   @override
   String toString() {
     return (StringBuffer('CollectionData(')
           ..write('id: $id, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name);
+  int get hashCode => Object.hash(id, name, type);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CollectionData &&
           other.id == this.id &&
-          other.name == this.name);
+          other.name == this.name &&
+          other.type == this.type);
 }
 
 class CollectionCompanion extends UpdateCompanion<CollectionData> {
   final Value<int> id;
   final Value<String> name;
+  final Value<int> type;
   const CollectionCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.type = const Value.absent(),
   });
   CollectionCompanion.insert({
     this.id = const Value.absent(),
     required String name,
+    this.type = const Value.absent(),
   }) : name = Value(name);
   static Insertable<CollectionData> custom({
     Expression<int>? id,
     Expression<String>? name,
+    Expression<int>? type,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (type != null) 'type': type,
     });
   }
 
-  CollectionCompanion copyWith({Value<int>? id, Value<String>? name}) {
+  CollectionCompanion copyWith(
+      {Value<int>? id, Value<String>? name, Value<int>? type}) {
     return CollectionCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
+      type: type ?? this.type,
     );
   }
 
@@ -488,6 +517,9 @@ class CollectionCompanion extends UpdateCompanion<CollectionData> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
+    if (type.present) {
+      map['type'] = Variable<int>(type.value);
+    }
     return map;
   }
 
@@ -495,7 +527,8 @@ class CollectionCompanion extends UpdateCompanion<CollectionData> {
   String toString() {
     return (StringBuffer('CollectionCompanion(')
           ..write('id: $id, ')
-          ..write('name: $name')
+          ..write('name: $name, ')
+          ..write('type: $type')
           ..write(')'))
         .toString();
   }

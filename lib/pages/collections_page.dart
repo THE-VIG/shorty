@@ -85,6 +85,7 @@ class CollectionsPage extends StatelessWidget {
             onPressed: () {
               DatabaseHelper().addCollection(
                 nameController.text.trim(),
+                CollectionType.web,
               );
               Navigator.pop(context);
             },

@@ -10,6 +10,7 @@ part 'database.g.dart';
 class Collection extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
+  IntColumn get type => integer().withDefault(const Constant(0))();
 }
 
 class Shortcut extends Table {
@@ -26,7 +27,7 @@ class Database extends _$Database {
   Database() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 }
 
 LazyDatabase _openConnection() {

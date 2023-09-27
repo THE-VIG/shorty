@@ -2,8 +2,8 @@ import 'package:shorty/models/models.dart';
 
 abstract class Helper {
   //collections
-  Future<void> addCollection(String name);
-  Future<void> updateCollection(int id, String name);
+  Future<void> addCollection(String name, CollectionType type);
+  Future<void> updateCollection(int id, String name, CollectionType type);
   Future<void> deleteCollection(int id);
   Future<Collection> getCollection(int id);
   Future<List<Collection>> getCollections();

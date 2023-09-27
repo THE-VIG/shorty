@@ -1,18 +1,18 @@
 import 'package:drift/drift.dart';
-import 'package:shorty/database/database.dart';
+import 'package:shorty/database/database.dart' hide Collection, Shortcut;
 import 'package:shorty/helper.dart';
-import 'package:shorty/models/models.dart' as models;
+import 'package:shorty/models/models.dart';
 
 final _database = Database();
 
 class DatabaseHelper extends Helper {
-  models.Collection _collectionDataToModel(CollectionData data) =>
-      models.Collection(
+  Collection _collectionDataToModel(CollectionData data) => Collection(
         id: data.id,
         name: data.name,
+        type: data.type == 0 ? CollectionType.web : CollectionType.app,
       );
 
-  models.Shortcut _shortcutDataToModel(ShortcutData data) => models.Shortcut(
+  Shortcut _shortcutDataToModel(ShortcutData data) => Shortcut(
         id: data.id,
         name: data.name,
         collection: data.collection,
@@ -22,9 +22,12 @@ class DatabaseHelper extends Helper {
       );
 
   @override
-  Future<void> addCollection(String name) async {
+  Future<void> addCollection(String name, CollectionType type) async {
     await _database.into(_database.collection).insert(
-          CollectionCompanion.insert(name: name),
+          CollectionCompanion.insert(
+            name: name,
+            type: Value(type == CollectionType.web ? 0 : 1),
+          ),
         );
   }
 
@@ -57,7 +60,7 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Future<models.Collection> getCollection(int id) async {
+  Future<Collection> getCollection(int id) async {
     final data = await (_database.collection.select()
           ..where((tbl) => tbl.id.equals(id)))
         .getSingle();
@@ -66,9 +69,9 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Future<List<models.Collection>> getCollections() async {
+  Future<List<Collection>> getCollections() async {
     final data = await _database.collection.select().get();
-    final collections = <models.Collection>[];
+    final collections = <Collection>[];
 
     for (var d in data) {
       collections.add(_collectionDataToModel(d));
@@ -78,7 +81,7 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Future<models.Shortcut> getShortcut(int id) async {
+  Future<Shortcut> getShortcut(int id) async {
     final data = await (_database.select(_database.shortcut)
           ..where((tbl) => tbl.id.equals(id)))
         .getSingle();
@@ -87,12 +90,12 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Future<List<models.Shortcut>> getShortcuts(int collectionId) async {
+  Future<List<Shortcut>> getShortcuts(int collectionId) async {
     final statement = _database.select(_database.shortcut)
       ..where((tbl) => tbl.collection.equals(collectionId));
     final data = await statement.get();
 
-    final shortcuts = <models.Shortcut>[];
+    final shortcuts = <Shortcut>[];
     for (var shortcut in data) {
       shortcuts.add(_shortcutDataToModel(shortcut));
     }
@@ -101,30 +104,33 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Stream<List<models.Shortcut>> watchShortcuts(int collectionId) {
+  Stream<List<Shortcut>> watchShortcuts(int collectionId) {
     final statement = _database.select(_database.shortcut)
       ..where((tbl) => tbl.collection.equals(collectionId));
 
-    final shotrcutsStream = statement
-        .map<models.Shortcut>((data) => _shortcutDataToModel(data))
-        .watch();
+    final shotrcutsStream =
+        statement.map<Shortcut>((data) => _shortcutDataToModel(data)).watch();
 
     return shotrcutsStream;
   }
 
   @override
-  Stream<List<models.Collection>> watchCollections() {
+  Stream<List<Collection>> watchCollections() {
     final statement = _database.select(_database.collection);
 
     final stream = statement
-        .map<models.Collection>((data) => _collectionDataToModel(data))
+        .map<Collection>((data) => _collectionDataToModel(data))
         .watch();
 
     return stream;
   }
 
   @override
-  Future<void> updateCollection(int id, String name) async {
+  Future<void> updateCollection(
+    int id,
+    String name,
+    CollectionType type,
+  ) async {
     await _database.update(_database.collection).replace(
           CollectionCompanion.insert(
             id: Value(id),
