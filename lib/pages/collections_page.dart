@@ -184,7 +184,6 @@ class CollectionsCard extends StatelessWidget {
             text: const Text('Rename'),
             onPressed: () {
               Flyout.of(context).close();
-
             },
           ),
           const MenuFlyoutSeparator(),
@@ -204,7 +203,8 @@ class CollectionsCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        '${collection.name} will be removed. Do you want to continue?',
+                        '${collection.name} will be removed. '
+                        'Do you want to continue?',
                       ),
                       const SizedBox(height: 8.0),
                       Row(
@@ -319,7 +319,7 @@ class _ShortcutItemState extends State<ShortcutItem> {
                             aspectRatio: 1,
                             child: Tooltip(
                               message: widget.shorcut != null
-                                  ? '${widget.shorcut!.name} ${widget.shorcut!.url}'
+                                  ? '${widget.shorcut!.name} at "${widget.shorcut!.url}"'
                                   : 'Add shortcut',
                               useMousePosition: false,
                               child: ClipRRect(
