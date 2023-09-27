@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
       title: 'Shorty',
       theme: FluentThemeData(
         accentColor: Colors.red,
+        brightness: Brightness.light,
       ),
       darkTheme: FluentThemeData(
         accentColor: Colors.red,

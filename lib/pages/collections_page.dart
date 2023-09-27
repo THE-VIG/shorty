@@ -13,7 +13,7 @@ class CollectionsPage extends StatelessWidget {
     final nameController = TextEditingController();
 
     return StreamBuilder<List<Collection>>(
-      stream: DatabaseHelper().watchCollections(),
+      stream: DatabaseHelper().watchCollections(CollectionType.web),
       builder: (context, snapshot) {
         final collections = snapshot.data;
 

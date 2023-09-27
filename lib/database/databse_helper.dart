@@ -26,7 +26,7 @@ class DatabaseHelper extends Helper {
     await _database.into(_database.collection).insert(
           CollectionCompanion.insert(
             name: name,
-            type: Value(type == CollectionType.web ? 0 : 1),
+            type: Value(type.index),
           ),
         );
   }
@@ -69,8 +69,10 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Future<List<Collection>> getCollections() async {
-    final data = await _database.collection.select().get();
+  Future<List<Collection>> getCollections(CollectionType type) async {
+    final data = await (_database.collection.select()
+          ..where((tbl) => tbl.type.equals(type.index)))
+        .get();
     final collections = <Collection>[];
 
     for (var d in data) {
@@ -115,8 +117,9 @@ class DatabaseHelper extends Helper {
   }
 
   @override
-  Stream<List<Collection>> watchCollections() {
-    final statement = _database.select(_database.collection);
+  Stream<List<Collection>> watchCollections(CollectionType type) {
+    final statement = _database.select(_database.collection)
+      ..where((tbl) => tbl.type.equals(type.index));
 
     final stream = statement
         .map<Collection>((data) => _collectionDataToModel(data))

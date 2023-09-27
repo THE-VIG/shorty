@@ -6,7 +6,7 @@ abstract class Helper {
   Future<void> updateCollection(int id, String name, CollectionType type);
   Future<void> deleteCollection(int id);
   Future<Collection> getCollection(int id);
-  Future<List<Collection>> getCollections();
+  Future<List<Collection>> getCollections(CollectionType type);
 
   //shortcuts
   Future<void> addShortcut(
@@ -26,7 +26,7 @@ abstract class Helper {
   );
   Future<void> deleteShortcut(int id);
   Future<Shortcut> getShortcut(int id);
-  Stream<List<Collection>> watchCollections();
+  Stream<List<Collection>> watchCollections(CollectionType type);
   Stream<List<Shortcut>> watchShortcuts(int collectionId);
   Future<List<Shortcut>> getShortcuts(int collectionId);
 }

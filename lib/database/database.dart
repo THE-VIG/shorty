@@ -28,6 +28,18 @@ class Database extends _$Database {
 
   @override
   int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (m) => m.createAll(),
+      onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          await m.addColumn(collection, collection.type);
+        }
+      },
+    );
+  }
 }
 
 LazyDatabase _openConnection() {
