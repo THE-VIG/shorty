@@ -73,13 +73,8 @@ class DatabaseHelper extends Helper {
     final data = await (_database.collection.select()
           ..where((tbl) => tbl.type.equals(type.index)))
         .get();
-    final collections = <Collection>[];
 
-    for (var d in data) {
-      collections.add(_collectionDataToModel(d));
-    }
-
-    return collections;
+    return data.map((d) => _collectionDataToModel(d)).toList();
   }
 
   @override
@@ -97,12 +92,7 @@ class DatabaseHelper extends Helper {
       ..where((tbl) => tbl.collection.equals(collectionId));
     final data = await statement.get();
 
-    final shortcuts = <Shortcut>[];
-    for (var shortcut in data) {
-      shortcuts.add(_shortcutDataToModel(shortcut));
-    }
-
-    return shortcuts;
+    return data.map((shortcut) => _shortcutDataToModel(shortcut)).toList();
   }
 
   @override
@@ -110,10 +100,10 @@ class DatabaseHelper extends Helper {
     final statement = _database.select(_database.shortcut)
       ..where((tbl) => tbl.collection.equals(collectionId));
 
-    final shotrcutsStream =
+    final shortcutsStream =
         statement.map<Shortcut>((data) => _shortcutDataToModel(data)).watch();
 
-    return shotrcutsStream;
+    return shortcutsStream;
   }
 
   @override
@@ -135,9 +125,10 @@ class DatabaseHelper extends Helper {
     CollectionType type,
   ) async {
     await _database.update(_database.collection).replace(
-          CollectionCompanion.insert(
+          CollectionCompanion(
             id: Value(id),
-            name: name,
+            name: Value(name),
+            type: Value(type.index),
           ),
         );
   }
@@ -146,11 +137,11 @@ class DatabaseHelper extends Helper {
   Future<void> updateShortcut(int id, String name, String url, int collection,
       String? color, String? imageUrl) async {
     await _database.update(_database.shortcut).replace(
-          ShortcutCompanion.insert(
+          ShortcutCompanion(
             id: Value(id),
-            name: name,
-            url: url,
-            collection: collection,
+            name: Value(name),
+            collection: Value(collection),
+            url: Value(url),
             color: Value(color),
             imageUrl: Value(imageUrl),
           ),
