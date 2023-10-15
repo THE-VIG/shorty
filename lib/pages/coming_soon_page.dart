@@ -11,6 +11,20 @@ class ComingSoonPage extends StatefulWidget {
 class _ComingSoonPageState extends State<ComingSoonPage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Coming Soon',
+            style: TextStyle(fontSize: 100, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            'This page is under construction',
+            style: TextStyle(fontSize: 24),
+          ),
+        ],
+      ),
+    );
   }
 }

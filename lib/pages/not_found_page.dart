@@ -10,6 +10,20 @@ class NotFoundPage extends StatefulWidget {
 class _NotFoundPageState extends State<NotFoundPage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            '404',
+            style: TextStyle(fontSize: 100, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            'Page not found',
+            style: TextStyle(fontSize: 24),
+          ),
+        ],
+      ),
+    );
   }
 }

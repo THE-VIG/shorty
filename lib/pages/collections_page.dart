@@ -1,6 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:shorty/database/databse_helper.dart';
 import 'package:shorty/models/models.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CollectionsPage extends StatelessWidget {
   const CollectionsPage({super.key, required this.title, required this.type});
@@ -285,10 +286,15 @@ class _ShortcutItemState extends State<ShortcutItem> {
 
                     deleteShortcut();
                   },
-                  onTap: () {
-                    if (widget.shorcut != null) return;
+                  onTap: () async {
+                    if (widget.shorcut == null) createShortcut();
 
-                    createShortcut();
+                    final url = Uri.parse(widget.shorcut!.url);
+                    if (await canLaunchUrl(url)) {
+                      launchUrl(url);
+                    } else {
+                      showErrorDialog();
+                    }
                   },
                   child: Listener(
                     onPointerDown: (event) {
@@ -360,6 +366,43 @@ class _ShortcutItemState extends State<ShortcutItem> {
       ),
     );
   }
+
+  void showErrorDialog() => showDialog(
+        context: context,
+        builder: (context) => ContentDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Could not launch ${widget.shorcut!.url}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Divider(),
+              const Text('do you wanna delete this shortcut'),
+              const SizedBox(height: 8.0),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Button(
+                    onPressed: () {
+                      DatabaseHelper().deleteShortcut(widget.shorcut!.id);
+                      Flyout.of(context).close();
+                    },
+                    child: const Text('Remove'),
+                  ),
+                  const SizedBox(width: 8.0),
+                  FilledButton(
+                    onPressed: Flyout.of(context).close,
+                    child: const Text('Cancel'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
 
   Future<void> deleteShortcut() async {
     await deleteFlyoutController.showFlyout(
