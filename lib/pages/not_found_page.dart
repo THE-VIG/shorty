@@ -10,19 +10,42 @@ class NotFoundPage extends StatefulWidget {
 class _NotFoundPageState extends State<NotFoundPage> {
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            '404',
-            style: TextStyle(fontSize: 100, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            'Page not found',
-            style: TextStyle(fontSize: 24),
-          ),
-        ],
+    return Center(
+      child: SizedBox(
+        width: 300,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Spacer(),
+            Text(
+              '404',
+              style: FluentTheme.of(context).typography.display!.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Page not found',
+              style: FluentTheme.of(context).typography.title!,
+              textAlign: TextAlign.center,
+            ),
+            const Spacer(),
+            Button(
+              child: const Text('Go Back'),
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  Navigator.of(context).pushReplacementNamed('/');
+                }
+              },
+            ),
+            
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }

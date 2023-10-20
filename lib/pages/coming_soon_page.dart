@@ -1,4 +1,3 @@
-
 import 'package:fluent_ui/fluent_ui.dart';
 
 class ComingSoonPage extends StatefulWidget {
@@ -14,14 +13,21 @@ class _ComingSoonPageState extends State<ComingSoonPage> {
     return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+        children: [
           Text(
             'Coming Soon',
-            style: TextStyle(fontSize: 100, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 16),
+          ProgressRing(),
+          SizedBox(height: 8),
+          Text(
+            'This progress ring is not ending',
+            style: TextStyle(fontSize: 10),
           ),
           Text(
             'This page is under construction',
-            style: TextStyle(fontSize: 24),
+            style: TextStyle(fontSize: 18),
           ),
         ],
       ),

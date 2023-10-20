@@ -1,4 +1,7 @@
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:shorty/database/databse_helper.dart';
+import 'package:shorty/models/collection_model.dart';
+import 'package:shorty/pages/collections_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,12 +17,41 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'Welcome to Your Home',
-            style: FluentTheme.of(context).typography.title,
-          ),
+          //home page that shows most used collections
           const Text(
-            'this will be available soon',
+            'Home Page',
+            style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          //web collection
+          FutureBuilder(
+            future: DatabaseHelper().getCollections(CollectionType.web),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: ProgressRing(),
+                );
+              }
+              return CollectionsCard(
+                showTitles: false,
+                collection: snapshot.data!.first,
+              );
+            },
+          ),
+          //app collection
+          FutureBuilder(
+            future: DatabaseHelper().getCollections(CollectionType.app),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: ProgressRing(),
+                );
+              }
+              return CollectionsCard(
+                showTitles: false,
+                collection: snapshot.data!.first,
+              );
+            },
           ),
         ],
       ),
